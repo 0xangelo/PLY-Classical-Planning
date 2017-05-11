@@ -27,63 +27,49 @@
     ;; git add <new-file>
     (:action git-add-new
         :parameters (?f - file)
-        :precondition (and ...)
-        :effect (and
-            ...
-        )
+        :precondition (and (untracked ?f) )
+        :effect (and (not (untracked ?f)) (staged ?f) )
     )
 
     ;; git add <old-file>
     (:action git-add
         :parameters (?f - file)
-        :precondition (and ...)
-        :effect (and
-            ...
-        )
+        :precondition (and (not (untracked ?f)) (not (staged ?f)))
+        :effect (and (not (untracked ?f)) (staged ?f))
     )
     
     ;; git rm <old-file>
     (:action git-rm
         :parameters (?f - file)
-        :precondition (and ...)
-        :effect (and
-            ...
-        )
+        :precondition (and (not (untracked ?f)) (deleted-in-workspace ?f))
+        :effect (and (staged ?f) (not (deleted-in-workspace ?f)))
     )
     
     ;; git checkout -- <old-file>
     (:action git-checkout
         :parameters (?f - file)
-        :precondition (and ...)
-        :effect (and
-            ...
-        )
+        :precondition (and (modified-in-workspace ?f) (not (untracked ?f)))
+        :effect (and (not (modified-in-workspace ?f)) (clean ?f))
     )
     
     ;; git reset -- <old-file>
     (:action git-reset
         :parameters (?f - file)
-        :precondition (and ...)
-        :effect (and
-            ...
-        )
+        :precondition (and (not (untracked ?f)) (staged ?f))
+        :effect (and (modified-in-workspace ?f) (untracked ?f))
     )
     
     ;; git reset -- <new-file>
     (:action git-reset-new
         :parameters (?f - file)
-        :precondition (and ...)
-        :effect (and
-            ...
-        )
+        :precondition (and (untracked ?f) (staged ?f))
+        :effect (and (not (staged ?f)) (untracked ?f))
     )
 
     ;; git commit <file>
     (:action git-commit
         :parameters (?f - file)
-        :precondition (and ...)
-        :effect (and
-            ...
-        )
+        :precondition (and (staged ?f) )
+        :effect (and (committed ?f) (clean ?f))
     )
 )
