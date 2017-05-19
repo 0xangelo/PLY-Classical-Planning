@@ -106,16 +106,20 @@ class ProgressionPlanning(object):
         num_explored = 0
         num_generated = 0
         ' YOUR CODE HERE '
+
+        def f(node):
+            return node.g + node.h
+
         start = State(self.problem.init)
         start = Node(start, None, None, 0, W*heuristics(start, self))
         visited = {}
-        priority_queue = util.PriorityQueue()
+        frontier = Frontier(f)
 
         visited[start.state] = start.h
-        priority_queue.push( start, start.h )
+        frontier.push(start)
 
-        while not priority_queue.isEmpty():
-            node = priority_queue.pop()
+        while not frontier.is_empty():
+            node = frontier.pop()
             state = node.state
             num_explored += 1
 
@@ -126,15 +130,15 @@ class ProgressionPlanning(object):
             for action in self.applicable(state):
                 new_state = self.successor(state, action)
                 num_generated += 1
-                new_state = Node(new_state, action, node, node.g + 1, W*heuristics(new_state, self))
+                new_node = Node(new_state, action, node, node.g + 1, W*heuristics(new_state, self))
 
-                if new_state.state not in visited:
-                    visited[new_state.state] = new_state.g
-                    priority_queue.push(new_state, new_state.g + new_state.h)
+                if new_state not in visited:
+                    visited[new_state] = new_node.g
+                    frontier.push(new_node)
 
-                elif not new_state == start and new_state.g < visited[new_state.state]:
-                    visited[new_state.state] = new_state.g
-                    priority_queue.update(new_state, new_state.g + new_state.h)
+                elif new_node in frontier and new_node.g < visited[new_state]:
+                    visited[new_state] = new_node.g
+                    frontier.push(new_node)
                     
 
         return None
