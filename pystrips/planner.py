@@ -70,10 +70,10 @@ class ProgressionPlanning(object):
     def applicable(self, state):
         ''' Return a list of applicable actions in a given `state`. '''
         ' YOUR CODE HERE '
-        actions = self.actions
-        for action in actions:
-            if len(state.intersect(action.precond)) != len(action.precond):
-                actions.remove(action)
+        actions = []
+        for action in self.actions:
+            if action.precond <= state:
+                actions.append(action)
         return actions
         
     def successor(self, state, action):
@@ -84,7 +84,7 @@ class ProgressionPlanning(object):
     def goal_test(self, state):
         ''' Return true if `state` is a goal state. '''
         ' YOUR CODE HERE '
-        return str(state) == str(State(self.problem.goal))
+        return self.problem.goal <= state
 
     def solve(self, W, heuristics):
         '''
@@ -120,7 +120,8 @@ class ProgressionPlanning(object):
             num_explored += 1
 
             if self.goal_test(state):
-                break
+                return (node.path(), num_explored, num_generated)
+
             
             for action in self.applicable(state):
                 new_state = self.successor(state, action)
@@ -136,9 +137,7 @@ class ProgressionPlanning(object):
                     priority_queue.update(new_state, new_state.g + new_state.h)
                     
 
-        plan = node.path()
-        return (plan, num_explored, num_generated)
-
+        return None
 # def aStarSearch(problem, heuristic=nullHeuristic):
 #     """Search the node that has the lowest combined cost and heuristic first."""
 #     "*** YOUR CODE HERE ***"

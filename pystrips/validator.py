@@ -15,9 +15,9 @@ def validate(problem, solution):
     ' YOUR CODE HERE '
     state = State(problem.init)
     for action in solution:
-        if len(state.intersect(action.precond)) != len(action.precond):
+        if not action.precond <= state:
             print("Action not applicable!!!")
             return False
         state = state.difference(action.neg_effect).union(action.pos_effect)
 
-    return str(state) == str(State(problem.goal))
+    return problem.goal <= state
