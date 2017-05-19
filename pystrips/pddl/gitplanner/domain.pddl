@@ -1,75 +1,101 @@
-(define (domain git)
+;; Nome: JULIO KENJI UEDA
+;; NUSP: 9298281
 
-    (:requirements :strips :typing)
+( define ( domain git )
 
-    (:types file)
+	( :requirements :strips :typing )
 
-    (:predicates
-        ;; file exists in workspace but has never been source-controlled
-        (untracked ?f - file)
+	( :types file )
 
-        ;; a file modification has been added to the staging area but not committed
-        (staged ?f - file)
+	( :predicates
+		;; file exists in workspace but has never been source-controlled
+		( untracked ?f - file )
 
-        ;; all changes were added to the staging area and then committed.
-        (committed ?f - file)
+		;; a file modification has been added to the staging area but not committed
+		( staged ?f - file )
 
-        ;; already tracked file has no modifications in workspace (typically after being committed)
-        (clean ?f - file)
+		;; all changes were added to the staging area and then committed.
+		( committed ?f - file )
 
-        ;; file has been modified but this change has not been staged
-        (modified-in-workspace ?f - file)
+		;; already tracked file has no modifications in workspace ( typically after being committed )
+		( clean ?f - file )
 
-        ;; file has been deleted but this change has not been staged
-        (deleted-in-workspace ?f - file)
-    )
+		;; file has been modified but this change has not been staged
+		( modified-in-workspace ?f - file )
 
-    ;; git add <new-file>
-    (:action git-add-new
-        :parameters (?f - file)
-        :precondition (and (untracked ?f) )
-        :effect (and (not (untracked ?f)) (staged ?f) )
-    )
+		;; file has been deleted but this change has not been staged
+		( deleted-in-workspace ?f - file )
+	)
 
-    ;; git add <old-file>
-    (:action git-add
-        :parameters (?f - file)
-        :precondition (and (not (untracked ?f)) (not (staged ?f)))
-        :effect (and (not (untracked ?f)) (staged ?f))
-    )
-    
-    ;; git rm <old-file>
-    (:action git-rm
-        :parameters (?f - file)
-        :precondition (and (not (untracked ?f)) (deleted-in-workspace ?f))
-        :effect (and (staged ?f) (not (deleted-in-workspace ?f)))
-    )
-    
-    ;; git checkout -- <old-file>
-    (:action git-checkout
-        :parameters (?f - file)
-        :precondition (and (modified-in-workspace ?f) (not (untracked ?f)))
-        :effect (and (not (modified-in-workspace ?f)) (clean ?f))
-    )
-    
-    ;; git reset -- <old-file>
-    (:action git-reset
-        :parameters (?f - file)
-        :precondition (and (not (untracked ?f)) (staged ?f))
-        :effect (and (modified-in-workspace ?f) (untracked ?f))
-    )
-    
-    ;; git reset -- <new-file>
-    (:action git-reset-new
-        :parameters (?f - file)
-        :precondition (and (untracked ?f) (staged ?f))
-        :effect (and (not (staged ?f)) (untracked ?f))
-    )
+	;; git add <new-file>
+	( :action git-add-new
+		:parameters ( ?f - file )
+		:precondition ( untracked ?f )
+		:effect ( and
+			( staged ?f )
+			( not ( untracked ?f ) )
+		)
+	)
 
-    ;; git commit <file>
-    (:action git-commit
-        :parameters (?f - file)
-        :precondition (and (staged ?f) )
-        :effect (and (committed ?f) (clean ?f))
-    )
+	;; git add <old-file>
+	( :action git-add
+		:parameters ( ?f - file )
+		:precondition ( modified-in-workspace ?f )
+		:effect ( staged ?f )
+	)
+
+	;; git rm <old-file>
+	( :action git-rm
+		:parameters ( ?f - file )
+		:precondition ( and
+			( committed ?f )
+			( clean ?f )
+		)
+		:effect ( deleted-in-workspace ?f )
+	)
+
+	;; git checkout -- <old-file>
+	( :action git-checkout
+		:parameters ( ?f - file )
+		:precondition ( and
+			( committed ?f )
+			( modified-in-workspace ?f )
+		)
+		:effect ( and
+			( clean ?f )
+			( not ( modified-in-workspace ?f ) )
+		 )
+	)
+
+	;; git reset -- <old-file>
+	( :action git-reset
+		:parameters ( ?f - file )
+		:precondition ( staged ?f )
+		:effect ( and
+			( modified-in-workspace ?f )
+			( not ( staged ?f ) )
+		)
+	)
+
+	;; git reset -- <new-file>
+	( :action git-reset-new
+		:parameters ( ?f - file )
+		:precondition ( deleted-in-workspace ?f )
+		:effect ( and
+			( not ( staged ?f ) )
+			( untracked ?f )
+		)
+	)
+
+	;; git commit <file>
+	( :action git-commit
+		:parameters ( ?f - file )
+		:precondition ( staged ?f )
+		:effect ( and
+			( committed ?f )
+			( clean ?f )
+			( not ( staged ?f ) )
+			( not ( modified-in-workspace ?f ) )
+		)
+	)
 )

@@ -13,4 +13,11 @@ def validate(problem, solution):
     mainly for debugging purposes.
     '''
     ' YOUR CODE HERE '
-    util.raiseNotDefined()
+    state = State(problem.init)
+    for action in solution:
+        if len(state.intersect(action.precond)) != len(action.precond):
+            print("Action not applicable!!!")
+            return False
+        state = state.difference(action.neg_effect).union(action.pos_effect)
+
+    return str(state) == str(State(problem.goal))
