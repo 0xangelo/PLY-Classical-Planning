@@ -1,3 +1,6 @@
+# Nome: Angelo Gregorio Lovatto
+# Numero Usp: 9293435
+
 import util
 
 from state import State
@@ -43,6 +46,10 @@ class Frontier(object):
         node = self._queue.pop()
         self._set.remove(node.state)
         return node
+
+    def update(self, node):
+        ''' Update 'node' in frontier with new priority. '''
+        self._queue.update(node)
 
     def __str__(self):
         ''' Return string representation of frontier. '''
@@ -112,15 +119,16 @@ class ProgressionPlanning(object):
 
         start = State(self.problem.init)
         start = Node(start, None, None, 0, W*heuristics(start, self))
-        visited = {}
+        explored = set()
+        g_cost = {}
         frontier = Frontier(f)
 
-        visited[start.state] = start.h
         frontier.push(start)
 
         while not frontier.is_empty():
             node = frontier.pop()
             state = node.state
+            explored.add(state)
             num_explored += 1
 
             if self.goal_test(state):
@@ -130,45 +138,13 @@ class ProgressionPlanning(object):
             for action in self.applicable(state):
                 new_state = self.successor(state, action)
                 num_generated += 1
+                if new_state in explored:
+                    continue
+                
                 new_node = Node(new_state, action, node, node.g + 1, W*heuristics(new_state, self))
 
-                if new_state not in visited:
-                    visited[new_state] = new_node.g
-                    frontier.push(new_node)
-
-                elif new_node in frontier and new_node.g < visited[new_state]:
-                    visited[new_state] = new_node.g
-                    frontier.push(new_node)
-                    
+                if new_node not in frontier or new_node.g < g_cost[new_state]:
+                    g_cost[new_state] = new_node.g
+                    frontier.push(new_node)                    
 
         return None
-# def aStarSearch(problem, heuristic=nullHeuristic):
-#     """Search the node that has the lowest combined cost and heuristic first."""
-#     "*** YOUR CODE HERE ***"
-#     start = problem.getStartState()
-#     visited = list()
-#     priority_queue = util.PriorityQueue()
-#     g_cost = {}
-
-#     visited.append(start)
-#     g_cost[start[0]] = 0
-#     priority_queue.push((start, []), heuristic(start, problem))
-
-#     while not priority_queue.isEmpty():
-#         (state, path) = priority_queue.pop()
-
-#         if problem.isGoalState(state):
-#             return path
-
-#         for (next_state, action, stepCost) in problem.getSuccessors(state):
-#             new_path = path + [action]
-#             cost = problem.getCostOfActions(new_path) + heuristic(next_state, problem)
-
-#             if next_state not in visited:
-#                 visited.append(next_state)
-#                 g_cost[next_state[0]] = cost
-#                 priority_queue.push((next_state, new_path), cost)
-
-#             elif next_state != start and g_cost[next_state[0]] > cost:
-#                 g_cost[next_state[0]] = cost
-#                 priority_queue.update((next_state, new_path), cost)

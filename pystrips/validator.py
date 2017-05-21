@@ -1,3 +1,6 @@
+# Nome: Angelo Gregorio Lovatto
+# Numero Usp: 9293435
+
 import util
 from state import State
 

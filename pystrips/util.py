@@ -75,7 +75,10 @@ class PriorityQueueWithFunction(PriorityQueue):
         "Adds an item to the queue with priority from the priority function"
         PriorityQueue.push(self, item, self.priorityFunction(item))
 
-
+    def update(self, item):
+        "Updates an item in the queue with priority from the priority function"
+        PriorityQueue.update(self, item, self.priorityFunction(item))
+        
 def raiseNotDefined():
     fileName = inspect.stack()[1][1]
     line = inspect.stack()[1][2]
