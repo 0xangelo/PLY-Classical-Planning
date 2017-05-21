@@ -1,5 +1,5 @@
-;; Nome: JULIO KENJI UEDA
-;; NUSP: 9298281
+;; Nome: Angelo Gregorio Lovatto
+;; Numero Usp: 9293435
 
 ( define ( domain git )
 
